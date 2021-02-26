@@ -2,8 +2,16 @@
 
 |||
 |---------------------:|:----------------------------------------------|
+| **Docs Build**       | [![docs build][docs-bld-img]][docs-bld-url]   |
+| **Documentation**    | [![dev][docs-dev-img]][docs-dev-url]          |
 | **GHA CI**           | [![gha ci][gha-ci-img]][gha-ci-url]           |
 | **Code Coverage**    | [![codecov][codecov-img]][codecov-url]        |
+
+[docs-bld-img]: https://github.com/charleskawczynski/DispatchedTuples.jl/workflows/Documentation/badge.svg
+[docs-bld-url]: https://github.com/charleskawczynski/DispatchedTuples.jl/actions?query=workflow%3ADocumentation
+
+[docs-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
+[docs-dev-url]: https://charleskawczynski.github.io/DispatchedTuples.jl/dev/
 
 [gha-ci-img]: https://github.com/charleskawczynski/DispatchedTuples.jl/workflows/ci/badge.svg
 [gha-ci-url]: https://github.com/charleskawczynski/DispatchedTuples.jl/actions?query=workflow%3Aci

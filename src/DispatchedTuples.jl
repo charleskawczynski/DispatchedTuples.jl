@@ -43,6 +43,12 @@ end
 
 first_eltype(::Type{Tuple{T, V}}) where {T,V} = T
 
+"""
+    dispatch(::DispatchedTuple, type_instance)
+
+Dispatch on the [`DispatchedTuple`](@ref), based
+on the instance of the input type `type_instance`.
+"""
 @generated function dispatch(dt::DispatchedTuple{TT, NoDefaults}, ::T) where {TT, T}
     expr = quote tuple() end
     found_match = false
