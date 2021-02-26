@@ -1,5 +1,17 @@
 # DispatchedTuples.jl
 
+|||
+|---------------------:|:----------------------------------------------|
+| **GHA CI**           | [![gha ci][gha-ci-img]][gha-ci-url]           |
+| **Code Coverage**    | [![codecov][codecov-img]][codecov-url]        |
+
+[gha-ci-img]: https://github.com/charleskawczynski/DispatchedTuples.jl/workflows/ci/badge.svg
+[gha-ci-url]: https://github.com/charleskawczynski/DispatchedTuples.jl/actions?query=workflow%3Aci
+
+[codecov-img]: https://codecov.io/gh/charleskawczynski/DispatchedTuples.jl/branch/main/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/charleskawczynski/DispatchedTuples.jl
+
+
 DispatchedTuples.jl defines one user-facing type: `DispatchedTuple`, and one user-facing method: `dispatch`. A `DispatchedTuple` is similar to a compile-time dictionary, that uses dispatch for the look-up.
 
 `DispatchedTuple` takes a `Tuple` of `Pair`s, where the `first` field of the `Pair` (the "key") is **an instance of the type you want to dispatch on**. The `second` field of the `Pair` is the quantity (the "value", which can be anything) returned by `dispatch`.
