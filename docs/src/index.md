@@ -45,6 +45,8 @@ For convenience, `DispatchedTuple` can alternatively take a `Tuple` of two-eleme
 ## API
 
 ```@docs
+DispatchedTuples.AbstractDispatchedTuple
 DispatchedTuples.DispatchedTuple
+DispatchedTuples.DispatchedTupleSet
 DispatchedTuples.dispatch
 ```

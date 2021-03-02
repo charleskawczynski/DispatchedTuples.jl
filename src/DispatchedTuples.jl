@@ -2,9 +2,17 @@ module DispatchedTuples
 
 import Base
 
-export DispatchedTuple, dispatch
+export AbstractDispatchedTuple, DispatchedTuple, DispatchedTupleSet, dispatch
 
 struct NoDefaults end
+
+"""
+    AbstractDispatchedTuple{T <: Tuple, D}
+
+An abstract dispatch tuple type, for sub-typing
+dispatched tuples.
+"""
+abstract type AbstractDispatchedTuple{T <: Tuple, D} end
 
 """
     DispatchedTuple(tup[, default_value])
@@ -28,7 +36,7 @@ with a key it hasn't seen, an error is thrown.
 For convenience, `DispatchedTuple` can alternatively take a
 `Tuple` of two-element `Tuple`s.
 """
-struct DispatchedTuple{T,D}
+struct DispatchedTuple{T,D} <: AbstractDispatchedTuple{T, D}
     tup::T
     default::D
     function DispatchedTuple(tup_in::T, default=NoDefaults()) where {T<:Tuple}
@@ -80,7 +88,73 @@ end
     expr
 end
 
-Base.isempty(dt::DispatchedTuple) = Base.isempty(dt.tup)
-Base.length(dt::DispatchedTuple) = Base.length(dt.tup)
+Base.isempty(dt::AbstractDispatchedTuple) = Base.isempty(dt.tup)
+Base.length(dt::AbstractDispatchedTuple) = Base.length(dt.tup)
+
+"""
+    DispatchedTupleSet(tup[, default_value])
+
+Similar to `DispatchedTuple`, except:
+ - keys must be unique.
+ - returns the value, and not a tuple of values.
+ - throws an error in `dispatch` if keys are not unique.
+"""
+struct DispatchedTupleSet{T,D} <: AbstractDispatchedTuple{T, D}
+    tup::T
+    default::D
+    function DispatchedTupleSet(tup_in::T, default=NoDefaults()) where {T<:Tuple}
+        if eltype(tup_in) <: Pair
+            tup = map(x->(x.first, x.second), tup_in)
+        else
+            tup = tup_in
+        end
+        return new{typeof(tup), typeof(default)}(tup, default)
+    end
+end
+
+"""
+    dispatch(::DispatchedTupleSet, type_instance)
+
+Dispatch on the [`DispatchedTupleSet`](@ref), based
+on the instance of the input type `type_instance`.
+"""
+@generated function dispatch(dt::DispatchedTupleSet{TT, NoDefaults}, ::T) where {TT, T}
+    match_count = 0
+    expr = quote end
+    for (i,k) in enumerate(fieldnames(TT))
+        if first_eltype(fieldtype(TT, i)) == T
+            match_count += 1
+            expr = :(dt.tup[$i][2])
+        end
+    end
+    if match_count == 0
+        return :(throw(error("No method dispatch defined for type $T")))
+    elseif match_count > 1
+        return :(throw(error("DispatchedTupleSet has non-unique keys for type $T")))
+    else
+        return expr
+    end
+end
+
+@generated function dispatch(dt::DispatchedTupleSet{TT,D}, ::T) where {TT, D, T}
+    match_count = 0
+    expr = quote end
+    for (i,k) in enumerate(fieldnames(TT))
+        if first_eltype(fieldtype(TT, i)) == T
+            match_count += 1
+            expr = :(dt.tup[$i][2])
+        end
+    end
+    if match_count == 0
+        return :(dt.default)
+    elseif match_count > 1
+        return :(throw(error("DispatchedTupleSet has non-unique keys for type $T")))
+    else
+        return expr
+    end
+end
+
+# Nested dispatch calls:
+dispatch(dt::AbstractDispatchedTuple, a, b...) = dispatch(dispatch(dt, a), b...)
 
 end # module

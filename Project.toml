@@ -1,7 +1,7 @@
 name = "DispatchedTuples"
 uuid = "508c55e1-51b4-41fd-a5ca-7eb0327d070d"
 authors = ["Charles Kawczynski <kawczynski.charles@gmail.com>"]
-version = "0.1.0"
+version = "0.1.1"
 
 [compat]
 julia = "1.5"
