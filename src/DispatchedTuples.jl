@@ -90,6 +90,9 @@ end
 
 Base.isempty(dt::AbstractDispatchedTuple) = Base.isempty(dt.tup)
 Base.length(dt::AbstractDispatchedTuple) = Base.length(dt.tup)
+Base.map(f, dt::AbstractDispatchedTuple) = Base.map(f, dt.tup)
+Base.keys(dt::AbstractDispatchedTuple) = map(x->x[1], dt)
+Base.values(dt::AbstractDispatchedTuple) = map(x->x[2], dt)
 
 """
     DispatchedTupleSet(tup[, default_value])

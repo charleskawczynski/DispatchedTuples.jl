@@ -44,6 +44,9 @@ end
     dt = DispatchedTuple(tup)
     @test length(dt) == length(tup)
     @test isempty(dt) == isempty(tup)
+    @test map(x->x, dt) == map(x->x, dt.tup)
+    @test values(dt) == map(x->x[2], dt.tup)
+    @test keys(dt) == map(x->x[1], dt.tup)
 
     tup = ()
     dt = DispatchedTuple(tup)
