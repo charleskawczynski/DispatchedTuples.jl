@@ -23,9 +23,23 @@
 [bors-img]: https://bors.tech/images/badge_small.svg
 [bors-url]: https://app.bors.tech/repositories/32073
 
-DispatchedTuples.jl defines one user-facing type: `DispatchedTuple`, and one user-facing method: `dispatch`. A `DispatchedTuple` is similar to a compile-time dictionary, that uses dispatch for the look-up.
+A `DispatchedTuple` is like a dictionary, except
 
-`DispatchedTuple` takes a `Tuple` of `Pair`s, where the `first` field of the `Pair` (the "key") is **an instance of the type you want to dispatch on**. The `second` field of the `Pair` is the quantity (the "value", which can be anything) returned by `dispatch`.
+ - the keys are **instances of types**
+ - they are backed by tuples, so they are GPU-friendly
+ - multiple keys are allowed (except for `DispatchedTupleSet`)
+ - each unique key returns a tuple of values given by that key (in order)
+
+All `AbstractDispatchedTuple`s take a `Tuple` of `Pair`s, where the `first` field of the `Pair` (the "key") is **an instance of the type you want to dispatch on**. The `second` field of the `Pair` is the quantity (the "value", which can be anything) returned by `dispatch(::AbstractDispatchedTuple, key)`, the one user-facing method exported by DispatchedTuples.jl.
+
+DispatchedTuples.jl has several user-facing types:
+
+ - `DispatchedTuple` - a dispatched tuple (example below)
+
+ - `DispatchedTupleSet` - a dispatched tuple set-- duplicate keys are not allowed. An error is thrown when `dispatch` is called with a duplicate key.
+
+ - `DispatchedTupleDict` - a dispatched tuple dict-- duplicate keys are allowed, but `dispatch` returns value from the last non-unique key.
+
 
 ## Example
 

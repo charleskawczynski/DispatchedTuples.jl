@@ -55,6 +55,41 @@ end
 end
 
 #####
+##### DispatchedTupleDict's
+#####
+
+@testset "DispatchedTupleDict - base behavior" begin
+    dt = DispatchedTupleDict(((Foo(), 1), (Bar(), 2)))
+    @test dispatch(dt, Foo()) == 1
+    @test dispatch(dt, Bar()) == 2
+    @test_throws ErrorException dispatch(dt, FooBar())
+
+    dt = DispatchedTupleDict(((Foo(), 1), (Bar(), 2)), 0)
+    @test dispatch(dt, Foo()) == 1
+    @test dispatch(dt, Bar()) == 2
+    @test dispatch(dt, FooBar()) == dt.default
+end
+
+@testset "DispatchedTupleDict - base behavior - Pair interface" begin
+    dt = DispatchedTupleDict((Pair(Foo(), 1), Pair(Bar(), 2)))
+    @test dispatch(dt, Foo()) == 1
+    @test dispatch(dt, Bar()) == 2
+    @test_throws ErrorException dispatch(dt, FooBar())
+end
+
+@testset "DispatchedTupleDict - multiple values, unique keys" begin
+    dt = DispatchedTupleDict(((Foo(), 1), (Bar(), 2), (Foo(), 3)))
+    @test dispatch(dt, Foo()) == 3
+    @test dispatch(dt, Bar()) == 2
+    @test_throws ErrorException dispatch(dt, FooBar())
+
+    dt = DispatchedTupleDict(((Foo(), 1), (Bar(), 2), (Foo(), 3)), 0)
+    @test dispatch(dt, Foo()) == 3
+    @test dispatch(dt, Bar()) == 2
+    @test dispatch(dt, FooBar()) == dt.default
+end
+
+#####
 ##### DispatchedTupleSet's
 #####
 

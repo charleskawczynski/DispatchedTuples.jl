@@ -48,5 +48,6 @@ For convenience, `DispatchedTuple` can alternatively take a `Tuple` of two-eleme
 DispatchedTuples.AbstractDispatchedTuple
 DispatchedTuples.DispatchedTuple
 DispatchedTuples.DispatchedTupleSet
+DispatchedTuples.DispatchedTupleDict
 DispatchedTuples.dispatch
 ```

@@ -2,7 +2,11 @@ module DispatchedTuples
 
 import Base
 
-export AbstractDispatchedTuple, DispatchedTuple, DispatchedTupleSet, dispatch
+export AbstractDispatchedTuple, dispatch
+
+export DispatchedTuple
+export DispatchedTupleSet
+export DispatchedTupleDict
 
 struct NoDefaults end
 
@@ -13,6 +17,10 @@ An abstract dispatch tuple type, for sub-typing
 dispatched tuples.
 """
 abstract type AbstractDispatchedTuple{T <: Tuple, D} end
+
+#####
+##### DispatchedTuple
+#####
 
 """
     DispatchedTuple(tup[, default_value])
@@ -48,8 +56,6 @@ struct DispatchedTuple{T,D} <: AbstractDispatchedTuple{T, D}
         return new{typeof(tup), typeof(default)}(tup, default)
     end
 end
-
-first_eltype(::Type{Tuple{T, V}}) where {T,V} = T
 
 """
     dispatch(::DispatchedTuple, type_instance)
@@ -88,11 +94,9 @@ end
     expr
 end
 
-Base.isempty(dt::AbstractDispatchedTuple) = Base.isempty(dt.tup)
-Base.length(dt::AbstractDispatchedTuple) = Base.length(dt.tup)
-Base.map(f, dt::AbstractDispatchedTuple) = Base.map(f, dt.tup)
-Base.keys(dt::AbstractDispatchedTuple) = map(x->x[1], dt)
-Base.values(dt::AbstractDispatchedTuple) = map(x->x[2], dt)
+#####
+##### DispatchedTupleSet
+#####
 
 """
     DispatchedTupleSet(tup[, default_value])
@@ -157,7 +161,78 @@ end
     end
 end
 
+#####
+##### DispatchedTupleDict
+#####
+
+"""
+    DispatchedTupleDict(tup[, default_value])
+
+Similar to `DispatchedTuple`, except:
+ - keys need not be unique, _but_ only the last key is used
+ - returns the value, and not a tuple of values.
+"""
+struct DispatchedTupleDict{T,D} <: AbstractDispatchedTuple{T, D}
+    tup::T
+    default::D
+    function DispatchedTupleDict(tup_in::T, default=NoDefaults()) where {T<:Tuple}
+        if eltype(tup_in) <: Pair
+            tup = map(x->(x.first, x.second), tup_in)
+        else
+            tup = tup_in
+        end
+        return new{typeof(tup), typeof(default)}(tup, default)
+    end
+end
+
+"""
+    dispatch(::DispatchedTupleDict, type_instance)
+
+Dispatch on the [`DispatchedTupleDict`](@ref), based
+on the instance of the input type `type_instance`.
+"""
+@generated function dispatch(dt::DispatchedTupleDict{TT, NoDefaults}, ::T) where {TT, T}
+    match_count = 0
+    expr = quote end
+    for (i,k) in enumerate(fieldnames(TT))
+        if first_eltype(fieldtype(TT, i)) == T
+            match_count += 1
+            expr = :(dt.tup[$i][2])
+        end
+    end
+    if match_count == 0
+        push!(expr.args, :(throw(error("No method dispatch defined for type $T"))))
+    end
+    return expr
+end
+
+@generated function dispatch(dt::DispatchedTupleDict{TT,D}, ::T) where {TT, D, T}
+    match_count = 0
+    expr = quote end
+    for (i,k) in enumerate(fieldnames(TT))
+        if first_eltype(fieldtype(TT, i)) == T
+            match_count += 1
+            expr = :(dt.tup[$i][2])
+        end
+    end
+    if match_count == 0
+        return :(dt.default)
+    else
+        return expr
+    end
+end
+
 # Nested dispatch calls:
 dispatch(dt::AbstractDispatchedTuple, a, b...) = dispatch(dispatch(dt, a), b...)
+
+# Interface / extending:
+Base.isempty(dt::AbstractDispatchedTuple) = Base.isempty(dt.tup)
+Base.length(dt::AbstractDispatchedTuple) = Base.length(dt.tup)
+Base.map(f, dt::AbstractDispatchedTuple) = Base.map(f, dt.tup)
+Base.keys(dt::AbstractDispatchedTuple) = map(x->x[1], dt)
+Base.values(dt::AbstractDispatchedTuple) = map(x->x[2], dt)
+
+# Helper
+first_eltype(::Type{Tuple{T, V}}) where {T,V} = T
 
 end # module
