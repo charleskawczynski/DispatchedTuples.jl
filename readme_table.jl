@@ -1,6 +1,6 @@
 using PrettyTables
 
-header = ["Return value" "DispatchedTuple" "DispatchedTupleSet"
+header = ["Return value" "DispatchedTuple" "DispatchedSet"
     "" "(non-unique keys allowed)" "(unique keys only)"]
 
 col1 = ["Type", "Unregistered key (without default)", "Unregistered key (with default)", "Duplicative key"]

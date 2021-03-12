@@ -31,7 +31,7 @@ There are two kinds of `DispatchedTuple`s with different behavior:
 
 ```
 ┌────────────────────────────────────┬───────────────────────────┬────────────────────┐
-│                       Return value │           DispatchedTuple │ DispatchedTupleSet │
+│                       Return value │           DispatchedTuple │ DispatchedSet      │
 │                                    │ (non-unique keys allowed) │ (unique keys only) │
 ├────────────────────────────────────┼───────────────────────────┼────────────────────┤
 │                               Type │                     Tuple │              Value │
@@ -45,7 +45,7 @@ There are two kinds of `DispatchedTuple`s with different behavior:
 
 All `AbstractDispatchedTuple`s take a `Tuple` of `Pair`s, where the `first` field of the `Pair` (the "key") is **an instance of the type you want to dispatch on**. The `second` field of the `Pair` is the quantity (the "value", which can be anything) returned by `dispatch(::AbstractDispatchedTuple, key)`, the one user-facing method exported by DispatchedTuples.jl.
 
-Note that the second (optional) argument to `DispatchedTuple` and `DispatchedTupleSet` is a default value, which is returned for any unrecognized keys as shown in the table above.
+Note that the second (optional) argument to `DispatchedTuple` and `DispatchedSet` is a default value, which is returned for any unrecognized keys as shown in the table above.
 
 ## Example
 

@@ -5,7 +5,7 @@ import Base
 export AbstractDispatchedTuple, dispatch
 
 export DispatchedTuple
-export DispatchedTupleSet
+export DispatchedSet
 
 struct NoDefaults end
 
@@ -118,49 +118,49 @@ end
 end
 
 #####
-##### DispatchedTupleSet
+##### DispatchedSet
 #####
 
 """
-    DispatchedTupleSet(tup[, default_value])
+    DispatchedSet(tup[, default_value])
 
 Similar to [`DispatchedTuple`](@ref), except:
  - keys must be unique.
  - returns the value, and not a tuple of values.
  - throws an error in `dispatch` if the key is not unique (without a default value).
 """
-struct DispatchedTupleSet{T,D} <: AbstractDispatchedTuple{T, D}
+struct DispatchedSet{T,D} <: AbstractDispatchedTuple{T, D}
     tup::T
     default::D
-    function DispatchedTupleSet(tup_in::T, default=NoDefaults()) where {T<:Tuple}
+    function DispatchedSet(tup_in::T, default=NoDefaults()) where {T<:Tuple}
         tup = unwrap_pair(tup_in)
         return new{typeof(tup), typeof(default)}(tup, default)
     end
 end
 
 """
-    dispatch(::DispatchedTupleSet, type_instance)
+    dispatch(::DispatchedSet, type_instance)
 
-Dispatch on the [`DispatchedTupleSet`](@ref), based
+Dispatch on the [`DispatchedSet`](@ref), based
 on the instance of the input type `type_instance`.
 """
-@generated function dispatch(dt::DispatchedTupleSet{TT, NoDefaults}, ::T) where {TT, T}
+@generated function dispatch(dt::DispatchedSet{TT, NoDefaults}, ::T) where {TT, T}
     expr, match_count = match_expr_val(dt, TT, T)
     if match_count == 0
         return :(throw(error("No method dispatch defined for type $T")))
     elseif match_count > 1
-        return :(throw(error("DispatchedTupleSet has non-unique keys for type $T")))
+        return :(throw(error("DispatchedSet has non-unique keys for type $T")))
     else
         return expr
     end
 end
 
-@generated function dispatch(dt::DispatchedTupleSet{TT,D}, ::T) where {TT, D, T}
+@generated function dispatch(dt::DispatchedSet{TT,D}, ::T) where {TT, D, T}
     expr, match_count = match_expr_val(dt, TT, T)
     if match_count == 0
         return :(dt.default)
     elseif match_count > 1
-        return :(throw(error("DispatchedTupleSet has non-unique keys for type $T")))
+        return :(throw(error("DispatchedSet has non-unique keys for type $T")))
     else
         return expr
     end
