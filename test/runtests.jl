@@ -12,7 +12,7 @@ struct FooBar end
     dt = DispatchedTuple(((Foo(), 1), (Bar(), 2)))
     @test dispatch(dt, Foo()) == (1,)
     @test dispatch(dt, Bar()) == (2,)
-    @test_throws ErrorException dispatch(dt, FooBar())
+    @test dispatch(dt, FooBar()) == ()
 
     dt = DispatchedTuple(((Foo(), 1), (Bar(), 2)), 0)
     @test dispatch(dt, Foo()) == (1,)
@@ -24,7 +24,7 @@ end
     dt = DispatchedTuple((Pair(Foo(), 1), Pair(Bar(), 2)))
     @test dispatch(dt, Foo()) == (1,)
     @test dispatch(dt, Bar()) == (2,)
-    @test_throws ErrorException dispatch(dt, FooBar())
+    @test dispatch(dt, FooBar()) == ()
 
     dt = DispatchedTuple((Pair(Foo(), 1), Pair(Bar(), 2)), 0)
     @test dispatch(dt, Foo()) == (1,)
@@ -36,7 +36,7 @@ end
     dt = DispatchedTuple(((Foo(), 1), (Bar(), 2), (Foo(), 3)))
     @test dispatch(dt, Foo()) == (1,3)
     @test dispatch(dt, Bar()) == (2,)
-    @test_throws ErrorException dispatch(dt, FooBar())
+    @test dispatch(dt, FooBar()) == ()
 end
 
 @testset "DispatchedTuples - extending" begin
@@ -52,41 +52,6 @@ end
     dt = DispatchedTuple(tup)
     @test length(dt) == length(tup)
     @test isempty(dt) == isempty(tup)
-end
-
-#####
-##### DispatchedTupleDict's
-#####
-
-@testset "DispatchedTupleDict - base behavior" begin
-    dt = DispatchedTupleDict(((Foo(), 1), (Bar(), 2)))
-    @test dispatch(dt, Foo()) == 1
-    @test dispatch(dt, Bar()) == 2
-    @test_throws ErrorException dispatch(dt, FooBar())
-
-    dt = DispatchedTupleDict(((Foo(), 1), (Bar(), 2)), 0)
-    @test dispatch(dt, Foo()) == 1
-    @test dispatch(dt, Bar()) == 2
-    @test dispatch(dt, FooBar()) == dt.default
-end
-
-@testset "DispatchedTupleDict - base behavior - Pair interface" begin
-    dt = DispatchedTupleDict((Pair(Foo(), 1), Pair(Bar(), 2)))
-    @test dispatch(dt, Foo()) == 1
-    @test dispatch(dt, Bar()) == 2
-    @test_throws ErrorException dispatch(dt, FooBar())
-end
-
-@testset "DispatchedTupleDict - multiple values, unique keys" begin
-    dt = DispatchedTupleDict(((Foo(), 1), (Bar(), 2), (Foo(), 3)))
-    @test dispatch(dt, Foo()) == 3
-    @test dispatch(dt, Bar()) == 2
-    @test_throws ErrorException dispatch(dt, FooBar())
-
-    dt = DispatchedTupleDict(((Foo(), 1), (Bar(), 2), (Foo(), 3)), 0)
-    @test dispatch(dt, Foo()) == 3
-    @test dispatch(dt, Bar()) == 2
-    @test dispatch(dt, FooBar()) == dt.default
 end
 
 #####
