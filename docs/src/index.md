@@ -2,7 +2,7 @@
 
 ## What are dispatched tuples?
 
-`DispatchedTuple`s are like immutable dictionaries (so, they're more like `NamedTuple`s) except that the keys are **instances of types**. Also, because `DispatchedTuple`s are backed by tuples, they are GPU-friendly.
+`DispatchedTuple`s are like immutable dictionaries (so, they're technically more like `NamedTuple`s) except that the keys are **instances of types**. Also, because `DispatchedTuple`s are backed by tuples, they are GPU-friendly.
 
 There are two kinds of `DispatchedTuple`s with different behavior:
 
@@ -20,9 +20,15 @@ There are two kinds of `DispatchedTuple`s with different behavior:
 
 ## Creating and using dispatched tuples
 
-All `AbstractDispatchedTuple`s take a `Tuple` of `Pair`s, where the `first` field of the `Pair` (the "key") is **an instance of the type you want to dispatch on**. The `second` field of the `Pair` is the quantity (the "value", which can be anything) returned by `dispatch(::AbstractDispatchedTuple, key)`, the one user-facing method exported by DispatchedTuples.jl.
+`DispatchedTuple` and `DispatchedSet`s have three constructors:
 
-Note that the second (optional) argument to `DispatchedTuple` and `DispatchedSet` is a default value, which is returned for any unrecognized keys as shown in the table above.
+1. A variable number of (vararg) `Pair`s + keyword default
+2. A `Tuple` of `Pair`s + positional default
+3. A `Tuple` of 2-element `Tuple`s (the first element being the "key", and the second the "value") + positional default
+
+The `first` field of the `Pair` (the "key") is **an instance of the type you want to dispatch on**. The `second` field of the `Pair` is the quantity (the "value", which can be anything) returned by `dispatch(dtup::AbstractDispatchedTuple, key)` (or via `dtup[key]`).
+
+A default value, if passed to `DispatchedTuple` and `DispatchedSet`, is returned for any unrecognized keys as shown in the table above.
 
 ## Example
 
