@@ -18,6 +18,17 @@ struct FooBar end
     @test dispatch(dt, Foo()) == (1,)
     @test dispatch(dt, Bar()) == (2,)
     @test dispatch(dt, FooBar()) == (dt.default,)
+
+    # # Outer constructor with Pair's
+    dt = DispatchedTuple(Pair(Foo(), 1), Pair(Bar(), 2))
+    @test dispatch(dt, Foo()) == (1,)
+    @test dispatch(dt, Bar()) == (2,)
+    @test dispatch(dt, FooBar()) == ()
+
+    dt = DispatchedTuple(Pair(Foo(), 1), Pair(Bar(), 2); default = 0)
+    @test dispatch(dt, Foo()) == (1,)
+    @test dispatch(dt, Bar()) == (2,)
+    @test dispatch(dt, FooBar()) == (dt.default,)
 end
 
 @testset "DispatchedTuples - base behavior - Pair interface" begin
@@ -84,6 +95,17 @@ end
     @test_throws ErrorException dispatch(dt, FooBar())
 
     dt = DispatchedSet(((Foo(), 1), (Bar(), 2)), 0)
+    @test dispatch(dt, Foo()) == 1
+    @test dispatch(dt, Bar()) == 2
+    @test dispatch(dt, FooBar()) == dt.default
+
+    # # Outer constructor with Pair's
+    dt = DispatchedSet(Pair(Foo(), 1), Pair(Bar(), 2))
+    @test dispatch(dt, Foo()) == 1
+    @test dispatch(dt, Bar()) == 2
+    @test_throws ErrorException dispatch(dt, FooBar())
+
+    dt = DispatchedSet(Pair(Foo(), 1), Pair(Bar(), 2); default = 0)
     @test dispatch(dt, Foo()) == 1
     @test dispatch(dt, Bar()) == 2
     @test dispatch(dt, FooBar()) == dt.default

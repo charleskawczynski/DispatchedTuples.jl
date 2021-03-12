@@ -98,6 +98,9 @@ struct DispatchedTuple{T,D} <: AbstractDispatchedTuple{T, D}
     end
 end
 
+# Accept vararg Pairs:
+DispatchedTuple(p...; default=NoDefaults()) = DispatchedTuple(Tuple(p), default)
+
 """
     dispatch(::DispatchedTuple, type_instance)
 
@@ -137,6 +140,9 @@ struct DispatchedSet{T,D} <: AbstractDispatchedTuple{T, D}
         return new{typeof(tup), typeof(default)}(tup, default)
     end
 end
+
+# Accept vararg Pairs:
+DispatchedSet(p...; default=NoDefaults()) = DispatchedSet(Tuple(p), default)
 
 """
     dispatch(::DispatchedSet, type_instance)
