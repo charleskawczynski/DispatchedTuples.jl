@@ -46,12 +46,3 @@ dispatch(dtup, Baz()) # returns ()
 ```
 
 For convenience, `DispatchedTuple` can alternatively take a `Tuple` of two-element `Tuple`s.
-
-## API
-
-```@docs
-DispatchedTuples.AbstractDispatchedTuple
-DispatchedTuples.DispatchedTuple
-DispatchedTuples.DispatchedSet
-DispatchedTuples.dispatch
-```
