@@ -18,6 +18,33 @@ dispatched tuples.
 """
 abstract type AbstractDispatchedTuple{T <: Tuple, D} end
 
+unwrap_pair(tup) = eltype(tup) <: Pair ?
+    map(x->(x.first, x.second), tup) : tup
+
+function match_expr(dt, TT, T)
+    expr = quote tuple() end
+    found_match = false
+    for (i,k) in enumerate(fieldnames(TT))
+        if first_eltype(fieldtype(TT, i)) == T
+            found_match = true
+            push!(expr.args[2].args, :(dt.tup[$i][2]))
+        end
+    end
+    return expr, found_match
+end
+
+function match_expr_val(dt, TT, T)
+    match_count = 0
+    expr = quote end
+    for (i,k) in enumerate(fieldnames(TT))
+        if first_eltype(fieldtype(TT, i)) == T
+            match_count += 1
+            expr = :(dt.tup[$i][2])
+        end
+    end
+    return expr, match_count
+end
+
 #####
 ##### DispatchedTuple
 #####
@@ -48,11 +75,7 @@ struct DispatchedTuple{T,D} <: AbstractDispatchedTuple{T, D}
     tup::T
     default::D
     function DispatchedTuple(tup_in::T, default=NoDefaults()) where {T<:Tuple}
-        if eltype(tup_in) <: Pair
-            tup = map(x->(x.first, x.second), tup_in)
-        else
-            tup = tup_in
-        end
+        tup = unwrap_pair(tup_in)
         return new{typeof(tup), typeof(default)}(tup, default)
     end
 end
@@ -64,14 +87,7 @@ Dispatch on the [`DispatchedTuple`](@ref), based
 on the instance of the input type `type_instance`.
 """
 @generated function dispatch(dt::DispatchedTuple{TT, NoDefaults}, ::T) where {TT, T}
-    expr = quote tuple() end
-    found_match = false
-    for (i,k) in enumerate(fieldnames(TT))
-        if first_eltype(fieldtype(TT, i)) == T
-            found_match = true
-            push!(expr.args[2].args, :(dt.tup[$i][2]))
-        end
-    end
+    expr, found_match = match_expr(dt, TT, T)
     if !found_match
         expr = quote end
         push!(expr.args, :(throw(error("No method dispatch defined for type $T"))))
@@ -80,14 +96,7 @@ on the instance of the input type `type_instance`.
 end
 
 @generated function dispatch(dt::DispatchedTuple{TT,D}, ::T) where {TT, D, T}
-    expr = quote tuple() end
-    found_match = false
-    for (i,k) in enumerate(fieldnames(TT))
-        if first_eltype(fieldtype(TT, i)) == T
-            found_match = true
-            push!(expr.args[2].args, :(dt.tup[$i][2]))
-        end
-    end
+    expr, found_match = match_expr(dt, TT, T)
     if !found_match
         push!(expr.args[2].args, :(dt.default))
     end
@@ -110,11 +119,7 @@ struct DispatchedTupleSet{T,D} <: AbstractDispatchedTuple{T, D}
     tup::T
     default::D
     function DispatchedTupleSet(tup_in::T, default=NoDefaults()) where {T<:Tuple}
-        if eltype(tup_in) <: Pair
-            tup = map(x->(x.first, x.second), tup_in)
-        else
-            tup = tup_in
-        end
+        tup = unwrap_pair(tup_in)
         return new{typeof(tup), typeof(default)}(tup, default)
     end
 end
@@ -126,14 +131,7 @@ Dispatch on the [`DispatchedTupleSet`](@ref), based
 on the instance of the input type `type_instance`.
 """
 @generated function dispatch(dt::DispatchedTupleSet{TT, NoDefaults}, ::T) where {TT, T}
-    match_count = 0
-    expr = quote end
-    for (i,k) in enumerate(fieldnames(TT))
-        if first_eltype(fieldtype(TT, i)) == T
-            match_count += 1
-            expr = :(dt.tup[$i][2])
-        end
-    end
+    expr, match_count = match_expr_val(dt, TT, T)
     if match_count == 0
         return :(throw(error("No method dispatch defined for type $T")))
     elseif match_count > 1
@@ -144,14 +142,7 @@ on the instance of the input type `type_instance`.
 end
 
 @generated function dispatch(dt::DispatchedTupleSet{TT,D}, ::T) where {TT, D, T}
-    match_count = 0
-    expr = quote end
-    for (i,k) in enumerate(fieldnames(TT))
-        if first_eltype(fieldtype(TT, i)) == T
-            match_count += 1
-            expr = :(dt.tup[$i][2])
-        end
-    end
+    expr, match_count = match_expr_val(dt, TT, T)
     if match_count == 0
         return :(dt.default)
     elseif match_count > 1
@@ -176,11 +167,7 @@ struct DispatchedTupleDict{T,D} <: AbstractDispatchedTuple{T, D}
     tup::T
     default::D
     function DispatchedTupleDict(tup_in::T, default=NoDefaults()) where {T<:Tuple}
-        if eltype(tup_in) <: Pair
-            tup = map(x->(x.first, x.second), tup_in)
-        else
-            tup = tup_in
-        end
+        tup = unwrap_pair(tup_in)
         return new{typeof(tup), typeof(default)}(tup, default)
     end
 end
@@ -192,14 +179,7 @@ Dispatch on the [`DispatchedTupleDict`](@ref), based
 on the instance of the input type `type_instance`.
 """
 @generated function dispatch(dt::DispatchedTupleDict{TT, NoDefaults}, ::T) where {TT, T}
-    match_count = 0
-    expr = quote end
-    for (i,k) in enumerate(fieldnames(TT))
-        if first_eltype(fieldtype(TT, i)) == T
-            match_count += 1
-            expr = :(dt.tup[$i][2])
-        end
-    end
+    expr, match_count = match_expr_val(dt, TT, T)
     if match_count == 0
         push!(expr.args, :(throw(error("No method dispatch defined for type $T"))))
     end
@@ -207,14 +187,7 @@ on the instance of the input type `type_instance`.
 end
 
 @generated function dispatch(dt::DispatchedTupleDict{TT,D}, ::T) where {TT, D, T}
-    match_count = 0
-    expr = quote end
-    for (i,k) in enumerate(fieldnames(TT))
-        if first_eltype(fieldtype(TT, i)) == T
-            match_count += 1
-            expr = :(dt.tup[$i][2])
-        end
-    end
+    expr, match_count = match_expr_val(dt, TT, T)
     if match_count == 0
         return :(dt.default)
     else
