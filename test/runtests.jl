@@ -12,7 +12,7 @@ struct FooBar end
     dt = DispatchedTuple(((Foo(), 1), (Bar(), 2)))
     @test dispatch(dt, Foo()) == (1,)
     @test dispatch(dt, Bar()) == (2,)
-    @test_throws ErrorException dispatch(dt, FooBar())
+    @test dispatch(dt, FooBar()) == ()
 
     dt = DispatchedTuple(((Foo(), 1), (Bar(), 2)), 0)
     @test dispatch(dt, Foo()) == (1,)
@@ -24,7 +24,7 @@ end
     dt = DispatchedTuple((Pair(Foo(), 1), Pair(Bar(), 2)))
     @test dispatch(dt, Foo()) == (1,)
     @test dispatch(dt, Bar()) == (2,)
-    @test_throws ErrorException dispatch(dt, FooBar())
+    @test dispatch(dt, FooBar()) == ()
 
     dt = DispatchedTuple((Pair(Foo(), 1), Pair(Bar(), 2)), 0)
     @test dispatch(dt, Foo()) == (1,)
@@ -36,7 +36,7 @@ end
     dt = DispatchedTuple(((Foo(), 1), (Bar(), 2), (Foo(), 3)))
     @test dispatch(dt, Foo()) == (1,3)
     @test dispatch(dt, Bar()) == (2,)
-    @test_throws ErrorException dispatch(dt, FooBar())
+    @test dispatch(dt, FooBar()) == ()
 end
 
 @testset "DispatchedTuples - extending" begin
@@ -55,85 +55,50 @@ end
 end
 
 #####
-##### DispatchedTupleDict's
+##### DispatchedSet's
 #####
 
-@testset "DispatchedTupleDict - base behavior" begin
-    dt = DispatchedTupleDict(((Foo(), 1), (Bar(), 2)))
+@testset "DispatchedSet - base behavior" begin
+    dt = DispatchedSet(((Foo(), 1), (Bar(), 2)))
     @test dispatch(dt, Foo()) == 1
     @test dispatch(dt, Bar()) == 2
     @test_throws ErrorException dispatch(dt, FooBar())
 
-    dt = DispatchedTupleDict(((Foo(), 1), (Bar(), 2)), 0)
+    dt = DispatchedSet(((Foo(), 1), (Bar(), 2)), 0)
     @test dispatch(dt, Foo()) == 1
     @test dispatch(dt, Bar()) == 2
     @test dispatch(dt, FooBar()) == dt.default
 end
 
-@testset "DispatchedTupleDict - base behavior - Pair interface" begin
-    dt = DispatchedTupleDict((Pair(Foo(), 1), Pair(Bar(), 2)))
+@testset "DispatchedSet - base behavior - Pair interface" begin
+    dt = DispatchedSet((Pair(Foo(), 1), Pair(Bar(), 2)))
     @test dispatch(dt, Foo()) == 1
     @test dispatch(dt, Bar()) == 2
     @test_throws ErrorException dispatch(dt, FooBar())
 end
 
-@testset "DispatchedTupleDict - multiple values, unique keys" begin
-    dt = DispatchedTupleDict(((Foo(), 1), (Bar(), 2), (Foo(), 3)))
-    @test dispatch(dt, Foo()) == 3
-    @test dispatch(dt, Bar()) == 2
-    @test_throws ErrorException dispatch(dt, FooBar())
-
-    dt = DispatchedTupleDict(((Foo(), 1), (Bar(), 2), (Foo(), 3)), 0)
-    @test dispatch(dt, Foo()) == 3
-    @test dispatch(dt, Bar()) == 2
-    @test dispatch(dt, FooBar()) == dt.default
-end
-
-#####
-##### DispatchedTupleSet's
-#####
-
-@testset "DispatchedTupleSet - base behavior" begin
-    dt = DispatchedTupleSet(((Foo(), 1), (Bar(), 2)))
-    @test dispatch(dt, Foo()) == 1
-    @test dispatch(dt, Bar()) == 2
-    @test_throws ErrorException dispatch(dt, FooBar())
-
-    dt = DispatchedTupleSet(((Foo(), 1), (Bar(), 2)), 0)
-    @test dispatch(dt, Foo()) == 1
-    @test dispatch(dt, Bar()) == 2
-    @test dispatch(dt, FooBar()) == dt.default
-end
-
-@testset "DispatchedTupleSet - base behavior - Pair interface" begin
-    dt = DispatchedTupleSet((Pair(Foo(), 1), Pair(Bar(), 2)))
-    @test dispatch(dt, Foo()) == 1
-    @test dispatch(dt, Bar()) == 2
-    @test_throws ErrorException dispatch(dt, FooBar())
-end
-
-@testset "DispatchedTupleSet - multiple values, unique keys" begin
-    dt = DispatchedTupleSet(((Foo(), 1), (Bar(), 2), (Foo(), 3)))
+@testset "DispatchedSet - multiple values, unique keys" begin
+    dt = DispatchedSet(((Foo(), 1), (Bar(), 2), (Foo(), 3)))
     @test_throws ErrorException dispatch(dt, Foo()) == 1
     @test dispatch(dt, Bar()) == 2
     @test_throws ErrorException dispatch(dt, FooBar())
 
-    dt = DispatchedTupleSet(((Foo(), 1), (Bar(), 2), (Foo(), 3)), 0)
+    dt = DispatchedSet(((Foo(), 1), (Bar(), 2), (Foo(), 3)), 0)
     @test_throws ErrorException dispatch(dt, Foo()) == 1
     @test dispatch(dt, Bar()) == 2
     @test dispatch(dt, FooBar()) == dt.default
 end
 
 @testset "DispatchedTuples - nested" begin
-    dtup_L1_a = DispatchedTupleSet(((Foo(), 1), (Bar(), 2)))
-    dtup_L1_b = DispatchedTupleSet(((Foo(), 3), (Bar(), 4)))
-    dtup_L1_c = DispatchedTupleSet(((Foo(), 5), (Bar(), 6)))
-    dtup_L1_d = DispatchedTupleSet(((Foo(), 7), (Bar(), 8)))
+    dtup_L1_a = DispatchedSet(((Foo(), 1), (Bar(), 2)))
+    dtup_L1_b = DispatchedSet(((Foo(), 3), (Bar(), 4)))
+    dtup_L1_c = DispatchedSet(((Foo(), 5), (Bar(), 6)))
+    dtup_L1_d = DispatchedSet(((Foo(), 7), (Bar(), 8)))
 
-    dtup_L2_a = DispatchedTupleSet(((Foo(), dtup_L1_a), (Bar(), dtup_L1_b)))
-    dtup_L2_b = DispatchedTupleSet(((Foo(), dtup_L1_c), (Bar(), dtup_L1_d)))
+    dtup_L2_a = DispatchedSet(((Foo(), dtup_L1_a), (Bar(), dtup_L1_b)))
+    dtup_L2_b = DispatchedSet(((Foo(), dtup_L1_c), (Bar(), dtup_L1_d)))
 
-    dtup_L3_a = DispatchedTupleSet(((Foo(), dtup_L2_a), (Bar(), dtup_L2_b)))
+    dtup_L3_a = DispatchedSet(((Foo(), dtup_L2_a), (Bar(), dtup_L2_b)))
 
     @test dispatch(dtup_L3_a, Foo(), Foo(), Foo()) == 1
     @test dispatch(dtup_L3_a, Foo(), Foo(), Bar()) == 2
