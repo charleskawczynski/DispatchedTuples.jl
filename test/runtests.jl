@@ -40,18 +40,37 @@ end
 end
 
 @testset "DispatchedTuples - extending" begin
-    tup = (Pair(Foo(), 1), Pair(Bar(), 2))
-    dt = DispatchedTuple(tup)
-    @test length(dt) == length(tup)
-    @test isempty(dt) == isempty(tup)
+    tup1 = (Pair(Foo(), 1), Pair(Bar(), 2))
+    tup2 = ()
+
+    dt = DispatchedTuple(tup1)
+    @test length(dt) == length(tup1)
+    @test isempty(dt) == isempty(tup1)
     @test map(x->x, dt) == map(x->x, dt.tup)
     @test values(dt) == map(x->x[2], dt.tup)
     @test keys(dt) == map(x->x[1], dt.tup)
+    @test dt[Foo()] == (1, )
+    @test dt[Bar()] == (2, )
 
-    tup = ()
-    dt = DispatchedTuple(tup)
-    @test length(dt) == length(tup)
-    @test isempty(dt) == isempty(tup)
+    dt = DispatchedTuple(tup2)
+    @test length(dt) == length(tup2)
+    @test isempty(dt) == isempty(tup2)
+
+    dt = DispatchedSet(tup1)
+    @test length(dt) == length(tup1)
+    @test isempty(dt) == isempty(tup1)
+    @test map(x->x, dt) == map(x->x, dt.tup)
+    @test values(dt) == map(x->x[2], dt.tup)
+    @test keys(dt) == map(x->x[1], dt.tup)
+    @test dt[Foo()] == 1
+    @test dt[Bar()] == 2
+
+    dt = DispatchedSet(tup2)
+    @test length(dt) == length(tup2)
+    @test isempty(dt) == isempty(tup2)
+    @test_throws ErrorException dt[Foo()]
+    @test_throws ErrorException dt[Bar()]
+
 end
 
 #####

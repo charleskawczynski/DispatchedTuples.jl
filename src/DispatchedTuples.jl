@@ -175,6 +175,7 @@ Base.length(dt::AbstractDispatchedTuple) = Base.length(dt.tup)
 Base.map(f, dt::AbstractDispatchedTuple) = Base.map(f, dt.tup)
 Base.keys(dt::AbstractDispatchedTuple) = map(x->x[1], dt)
 Base.values(dt::AbstractDispatchedTuple) = map(x->x[2], dt)
+Base.getindex(dt::AbstractDispatchedTuple, e) = dispatch(dt, e)
 
 # Helper
 first_eltype(::Type{Tuple{T, V}}) where {T,V} = T
