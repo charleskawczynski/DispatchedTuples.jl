@@ -44,11 +44,12 @@ dtup = DispatchedTuple((
    Pair(Foo(), 1),
    Pair(Foo(), 2),
    Pair(Bar(), 3),
-));
+))
 
 dispatch(dtup, Foo()) # returns (1, 2)
 dispatch(dtup, Bar()) # returns (3,)
 dispatch(dtup, Baz()) # returns ()
+nothing
 ```
 
 For convenience, `DispatchedTuple` can alternatively take a `Tuple` of two-element `Tuple`s.
