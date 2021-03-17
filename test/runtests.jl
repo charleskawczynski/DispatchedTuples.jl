@@ -10,25 +10,25 @@ struct FooBar end
 
 @testset "DispatchedTuples - base behavior" begin
     dt = DispatchedTuple(((Foo(), 1), (Bar(), 2)))
-    @test dispatch(dt, Foo()) == (1,)
-    @test dispatch(dt, Bar()) == (2,)
-    @test dispatch(dt, FooBar()) == ()
+    @test dt[Foo()] == (1,)
+    @test dt[Bar()] == (2,)
+    @test dt[FooBar()] == ()
 
     dt = DispatchedTuple(((Foo(), 1), (Bar(), 2)), 0)
-    @test dispatch(dt, Foo()) == (1,)
-    @test dispatch(dt, Bar()) == (2,)
-    @test dispatch(dt, FooBar()) == (dt.default,)
+    @test dt[Foo()] == (1,)
+    @test dt[Bar()] == (2,)
+    @test dt[FooBar()] == (dt.default,)
 
     # # Outer constructor with Pair's
     dt = DispatchedTuple(Pair(Foo(), 1), Pair(Bar(), 2))
-    @test dispatch(dt, Foo()) == (1,)
-    @test dispatch(dt, Bar()) == (2,)
-    @test dispatch(dt, FooBar()) == ()
+    @test dt[Foo()] == (1,)
+    @test dt[Bar()] == (2,)
+    @test dt[FooBar()] == ()
 
     dt = DispatchedTuple(Pair(Foo(), 1), Pair(Bar(), 2); default = 0)
-    @test dispatch(dt, Foo()) == (1,)
-    @test dispatch(dt, Bar()) == (2,)
-    @test dispatch(dt, FooBar()) == (dt.default,)
+    @test dt[Foo()] == (1,)
+    @test dt[Bar()] == (2,)
+    @test dt[FooBar()] == (dt.default,)
 end
 
 @testset "DispatchedTuples - base behavior - show" begin
@@ -44,21 +44,21 @@ end
 
 @testset "DispatchedTuples - base behavior - Pair interface" begin
     dt = DispatchedTuple((Pair(Foo(), 1), Pair(Bar(), 2)))
-    @test dispatch(dt, Foo()) == (1,)
-    @test dispatch(dt, Bar()) == (2,)
-    @test dispatch(dt, FooBar()) == ()
+    @test dt[Foo()] == (1,)
+    @test dt[Bar()] == (2,)
+    @test dt[FooBar()] == ()
 
     dt = DispatchedTuple((Pair(Foo(), 1), Pair(Bar(), 2)), 0)
-    @test dispatch(dt, Foo()) == (1,)
-    @test dispatch(dt, Bar()) == (2,)
-    @test dispatch(dt, FooBar()) == (dt.default,)
+    @test dt[Foo()] == (1,)
+    @test dt[Bar()] == (2,)
+    @test dt[FooBar()] == (dt.default,)
 end
 
 @testset "DispatchedTuples - multiple values" begin
     dt = DispatchedTuple(((Foo(), 1), (Bar(), 2), (Foo(), 3)))
-    @test dispatch(dt, Foo()) == (1,3)
-    @test dispatch(dt, Bar()) == (2,)
-    @test dispatch(dt, FooBar()) == ()
+    @test dt[Foo()] == (1,3)
+    @test dt[Bar()] == (2,)
+    @test dt[FooBar()] == ()
 end
 
 @testset "DispatchedTuples - extending" begin
@@ -105,44 +105,44 @@ end
 
 @testset "DispatchedSet - base behavior" begin
     dt = DispatchedSet(((Foo(), 1), (Bar(), 2)))
-    @test dispatch(dt, Foo()) == 1
-    @test dispatch(dt, Bar()) == 2
-    @test_throws ErrorException dispatch(dt, FooBar())
+    @test dt[Foo()] == 1
+    @test dt[Bar()] == 2
+    @test_throws ErrorException dt[FooBar()]
 
     dt = DispatchedSet(((Foo(), 1), (Bar(), 2)), 0)
-    @test dispatch(dt, Foo()) == 1
-    @test dispatch(dt, Bar()) == 2
-    @test dispatch(dt, FooBar()) == dt.default
+    @test dt[Foo()] == 1
+    @test dt[Bar()] == 2
+    @test dt[FooBar()] == dt.default
 
     # # Outer constructor with Pair's
     dt = DispatchedSet(Pair(Foo(), 1), Pair(Bar(), 2))
-    @test dispatch(dt, Foo()) == 1
-    @test dispatch(dt, Bar()) == 2
-    @test_throws ErrorException dispatch(dt, FooBar())
+    @test dt[Foo()] == 1
+    @test dt[Bar()] == 2
+    @test_throws ErrorException dt[FooBar()]
 
     dt = DispatchedSet(Pair(Foo(), 1), Pair(Bar(), 2); default = 0)
-    @test dispatch(dt, Foo()) == 1
-    @test dispatch(dt, Bar()) == 2
-    @test dispatch(dt, FooBar()) == dt.default
+    @test dt[Foo()] == 1
+    @test dt[Bar()] == 2
+    @test dt[FooBar()] == dt.default
 end
 
 @testset "DispatchedSet - base behavior - Pair interface" begin
     dt = DispatchedSet((Pair(Foo(), 1), Pair(Bar(), 2)))
-    @test dispatch(dt, Foo()) == 1
-    @test dispatch(dt, Bar()) == 2
-    @test_throws ErrorException dispatch(dt, FooBar())
+    @test dt[Foo()] == 1
+    @test dt[Bar()] == 2
+    @test_throws ErrorException dt[FooBar()]
 end
 
 @testset "DispatchedSet - multiple values, unique keys" begin
     dt = DispatchedSet(((Foo(), 1), (Bar(), 2), (Foo(), 3)))
-    @test_throws ErrorException dispatch(dt, Foo()) == 1
-    @test dispatch(dt, Bar()) == 2
-    @test_throws ErrorException dispatch(dt, FooBar())
+    @test_throws ErrorException dt[Foo()] == 1
+    @test dt[Bar()] == 2
+    @test_throws ErrorException dt[FooBar()]
 
     dt = DispatchedSet(((Foo(), 1), (Bar(), 2), (Foo(), 3)), 0)
-    @test_throws ErrorException dispatch(dt, Foo()) == 1
-    @test dispatch(dt, Bar()) == 2
-    @test dispatch(dt, FooBar()) == dt.default
+    @test_throws ErrorException dt[Foo()] == 1
+    @test dt[Bar()] == 2
+    @test dt[FooBar()] == dt.default
 end
 
 @testset "DispatchedTuples - nested" begin
@@ -156,12 +156,12 @@ end
 
     dtup_L3_a = DispatchedSet(((Foo(), dtup_L2_a), (Bar(), dtup_L2_b)))
 
-    @test dispatch(dtup_L3_a, Foo(), Foo(), Foo()) == 1
-    @test dispatch(dtup_L3_a, Foo(), Foo(), Bar()) == 2
-    @test dispatch(dtup_L3_a, Foo(), Bar(), Foo()) == 3
-    @test dispatch(dtup_L3_a, Foo(), Bar(), Bar()) == 4
-    @test dispatch(dtup_L3_a, Bar(), Foo(), Foo()) == 5
-    @test dispatch(dtup_L3_a, Bar(), Foo(), Bar()) == 6
-    @test dispatch(dtup_L3_a, Bar(), Bar(), Foo()) == 7
-    @test dispatch(dtup_L3_a, Bar(), Bar(), Bar()) == 8
+    @test dtup_L3_a[Foo(), Foo(), Foo()] == 1
+    @test dtup_L3_a[Foo(), Foo(), Bar()] == 2
+    @test dtup_L3_a[Foo(), Bar(), Foo()] == 3
+    @test dtup_L3_a[Foo(), Bar(), Bar()] == 4
+    @test dtup_L3_a[Bar(), Foo(), Foo()] == 5
+    @test dtup_L3_a[Bar(), Foo(), Bar()] == 6
+    @test dtup_L3_a[Bar(), Bar(), Foo()] == 7
+    @test dtup_L3_a[Bar(), Bar(), Bar()] == 8
 end
