@@ -2,7 +2,7 @@ module DispatchedTuples
 
 import Base
 
-export AbstractDispatchedTuple, dispatch
+export AbstractDispatchedTuple
 
 export DispatchedTuple
 export DispatchedSet
@@ -57,14 +57,14 @@ A dispatch-able tuple.
 `first` field of the `Pair` (the "key") is **an instance
 of the type you want to dispatch on**. The `second` field
 of the `Pair` is the quantity (the "value", which can be
-anything) returned by `dispatch`.
+anything) returned by `dtup[key]`.
 
 If a `DispatchedTuple` has non-unique keys, then all values
 are returned in the returned `Tuple`.
 
 The second (optional) argument to `DispatchedTuple` is a
 default value, which is returned for any unrecognized keys.
-If the default value is not given, then `dispatch` on an
+If the default value is not given, then `dtup[key]` on an
 unregistered key will return an empty tuple.
 
 For convenience, `DispatchedTuple` can alternatively take a
@@ -84,9 +84,9 @@ dtup = DispatchedTuple((
    Pair(Bar(), 3),
 ));
 
-dispatch(dtup, Foo()) # returns (1, 2)
-dispatch(dtup, Bar()) # returns (3,)
-dispatch(dtup, Baz()) # returns ()
+dtup[Foo()] # returns (1, 2)
+dtup[Bar()] # returns (3,)
+dtup[Baz()] # returns ()
 ```
 """
 struct DispatchedTuple{T,D} <: AbstractDispatchedTuple{T, D}
@@ -130,7 +130,7 @@ end
 Similar to [`DispatchedTuple`](@ref), except:
  - keys must be unique.
  - returns the value, and not a tuple of values.
- - throws an error in `dispatch` if the key is not unique (without a default value).
+ - throws an error in `dtup[key]` if the key is not unique (without a default value).
 """
 struct DispatchedSet{T,D} <: AbstractDispatchedTuple{T, D}
     tup::T
@@ -174,6 +174,7 @@ end
 
 # Nested dispatch calls:
 dispatch(dt::AbstractDispatchedTuple, a, b...) = dispatch(dispatch(dt, a), b...)
+Base.getindex(dt::AbstractDispatchedTuple, a, b...) = dispatch(dt, a, b...)
 
 # Interface / extending:
 Base.isempty(dt::AbstractDispatchedTuple) = Base.isempty(dt.tup)

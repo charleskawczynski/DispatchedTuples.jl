@@ -26,7 +26,7 @@ dset = DispatchedSet(tupset);
 nothing
 ```
 
-Using `dispatch` on a `DispatchedTuple` is equivalent to hard-coding the intended indexes ahead of time, which means that the LLVM code is concise:
+Using `dtup[key]` on a `DispatchedTuple` is equivalent to hard-coding the intended indexes ahead of time, which means that the LLVM code is concise:
 
 ## DispatchedTuple
 
@@ -35,14 +35,14 @@ get_foo_magic(dtup) = (dtup.tup[1][2], dtup.tup[3][2])
 @code_typed get_foo_magic(dtup)
 ```
 ```@example perf
-@code_typed dispatch(dtup, Foo())
+@code_typed dtup[Foo()]
 ```
 
 ```@example perf
 @code_native get_foo_magic(dtup)
 ```
 ```@example perf
-@code_native dispatch(dtup, Foo())
+@code_native dtup[Foo()]
 ```
 
 ## DispatchedSet
@@ -52,12 +52,12 @@ get_foo_magic(dset) = dset.tup[1][2]
 @code_typed get_foo_magic(dset)
 ```
 ```@example perf
-@code_typed dispatch(dset, Foo())
+@code_typed dset[Foo()]
 ```
 
 ```@example perf
 @code_native get_foo_magic(dset)
 ```
 ```@example perf
-@code_native dispatch(dset, Foo())
+@code_native dset[Foo()]
 ```

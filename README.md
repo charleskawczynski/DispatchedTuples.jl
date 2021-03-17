@@ -49,7 +49,7 @@ There are two kinds of `DispatchedTuple`s with different behavior:
 2. A `Tuple` of `Pair`s + positional default
 3. A `Tuple` of 2-element `Tuple`s (the first element being the "key", and the second the "value") + positional default
 
-The `first` field of the `Pair` (the "key") is **an instance of the type you want to dispatch on**. The `second` field of the `Pair` is the quantity (the "value", which can be anything) returned by `dispatch(dtup::AbstractDispatchedTuple, key)` (or via `dtup[key]`).
+The `first` field of the `Pair` (the "key") is **an instance of the type you want to dispatch on**. The `second` field of the `Pair` is the quantity (the "value", which can be anything) returned by `dtup[key]`.
 
 A default value, if passed to `DispatchedTuple` and `DispatchedSet`, is returned for any unrecognized keys as shown in the table above.
 
