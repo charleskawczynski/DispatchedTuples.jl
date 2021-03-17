@@ -46,9 +46,9 @@ dtup = DispatchedTuple((
    Pair(Bar(), 3),
 ))
 
-dispatch(dtup, Foo()) # returns (1, 2)
-dispatch(dtup, Bar()) # returns (3,)
-dispatch(dtup, Baz()) # returns ()
+dtup[Foo()] # returns (1, 2)
+dtup[Bar()] # returns (3,)
+dtup[Baz()] # returns ()
 nothing
 ```
 
