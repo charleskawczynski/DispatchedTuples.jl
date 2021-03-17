@@ -182,6 +182,25 @@ Base.map(f, dt::AbstractDispatchedTuple) = Base.map(f, dt.tup)
 Base.keys(dt::AbstractDispatchedTuple) = map(x->x[1], dt)
 Base.values(dt::AbstractDispatchedTuple) = map(x->x[2], dt)
 Base.getindex(dt::AbstractDispatchedTuple, e) = dispatch(dt, e)
+Base.iterate(dt::AbstractDispatchedTuple, state = 1) = Base.iterate(dt.tup, state)
+
+# Note: this is not GPU-friendly
+show_default(io::IO, dt::AbstractDispatchedTuple, any) = println(io, "  default => $(dt.default)")
+
+show_default(io::IO, dt::DispatchedTuple, ::NoDefaults) = println(io, "  default => ()")
+show_default(io::IO, dt::DispatchedSet, ::NoDefaults) = println(io, "  default => error")
+
+function Base.show(io::IO, dt::AbstractDispatchedTuple)
+    show(io, typeof(dt))
+    print(io, " with $(length(dt)) entries:")
+    println(io)
+    foreach(dt) do tup
+        print(io, "  ")
+        show(io, Pair(tup...))
+        println(io)
+    end
+    show_default(io, dt, dt.default)
+end
 
 # Helper
 first_eltype(::Type{Tuple{T, V}}) where {T,V} = T
