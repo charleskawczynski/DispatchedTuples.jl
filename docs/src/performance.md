@@ -1,4 +1,4 @@
-# Performance
+# Performance introspection
 
 The performance of `DispatchedTuple`s should scale similar to the performance of ordinary tuples (good with small tuples, but expensive with larger ones).
 

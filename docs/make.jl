@@ -15,7 +15,8 @@ makedocs(
     modules = [DispatchedTuples],
     pages = Any[
         "Home" => "index.md",
-        "Performance" => "performance.md",
+        "Performance introspection" => "performance.md",
+        "Performance timing" => "performance_timing.md",
         "API" => "api.md",
     ],
 )
