@@ -78,12 +78,12 @@ DispatchedTuple{Tuple{Tuple{Foo,Int64},Tuple{Foo,Int64},Tuple{Bar,Int64}},Dispat
   default => ()
 
 
-julia> dispatch(dtup, Foo())
+julia> dtup[Foo()]
 (1, 2)
 
-julia> dispatch(dtup, Bar())
+julia> dtup[Bar()]
 (3,)
 
-julia> dispatch(dtup, Baz())
+julia> dtup[Baz()]
 ()
 ```
