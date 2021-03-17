@@ -31,6 +31,17 @@ struct FooBar end
     @test dispatch(dt, FooBar()) == (dt.default,)
 end
 
+@testset "DispatchedTuples - base behavior - show" begin
+    dt = DispatchedTuple(Pair(Foo(), 1), Pair(Bar(), 2); default = 0)
+    sprint(show, dt)
+    dt = DispatchedTuple(Pair(Foo(), 1), Pair(Bar(), 2))
+    sprint(show, dt)
+    dt = DispatchedSet(Pair(Foo(), 1), Pair(Bar(), 2); default = 0)
+    sprint(show, dt)
+    dt = DispatchedSet(Pair(Foo(), 1), Pair(Bar(), 2))
+    sprint(show, dt)
+end
+
 @testset "DispatchedTuples - base behavior - Pair interface" begin
     dt = DispatchedTuple((Pair(Foo(), 1), Pair(Bar(), 2)))
     @test dispatch(dt, Foo()) == (1,)
@@ -58,6 +69,8 @@ end
     @test length(dt) == length(tup1)
     @test isempty(dt) == isempty(tup1)
     @test map(x->x, dt) == map(x->x, dt.tup)
+    @test map(x->x, dt.tup) == Tuple([x for x in dt])
+    @test iterate(dt.tup) == iterate(dt)
     @test values(dt) == map(x->x[2], dt.tup)
     @test keys(dt) == map(x->x[1], dt.tup)
     @test dt[Foo()] == (1, )
@@ -71,6 +84,8 @@ end
     @test length(dt) == length(tup1)
     @test isempty(dt) == isempty(tup1)
     @test map(x->x, dt) == map(x->x, dt.tup)
+    @test map(x->x, dt.tup) == Tuple([x for x in dt])
+    @test iterate(dt.tup) == iterate(dt)
     @test values(dt) == map(x->x[2], dt.tup)
     @test keys(dt) == map(x->x[1], dt.tup)
     @test dt[Foo()] == 1
