@@ -1,3 +1,4 @@
 [deps]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 DispatchedTuples = "508c55e1-51b4-41fd-a5ca-7eb0327d070d"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
