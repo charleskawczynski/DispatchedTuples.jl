@@ -103,6 +103,18 @@ end
 ##### DispatchedSet's
 #####
 
+@testset "DispatchedTuples - unique keys" begin
+    tup = ()
+    @test DispatchedTuples.unique_elems(tup) == ()
+
+    tup = (Foo(),Bar(),Foo())
+    @test DispatchedTuples.unique_elems(tup) == (Foo(), Bar())
+
+    tup = ((Foo(), 1),(Bar(), 2),(Foo(), 3))
+    dt = DispatchedTuple(tup)
+    @test DispatchedTuples.unique_keys(dt) == (Foo(), Bar())
+end
+
 @testset "DispatchedSet - base behavior" begin
     dt = DispatchedSet(((Foo(), 1), (Bar(), 2)))
     @test dt[Foo()] == 1
@@ -134,15 +146,8 @@ end
 end
 
 @testset "DispatchedSet - multiple values, unique keys" begin
-    dt = DispatchedSet(((Foo(), 1), (Bar(), 2), (Foo(), 3)))
-    @test_throws ErrorException dt[Foo()] == 1
-    @test dt[Bar()] == 2
-    @test_throws ErrorException dt[FooBar()]
-
-    dt = DispatchedSet(((Foo(), 1), (Bar(), 2), (Foo(), 3)), 0)
-    @test_throws ErrorException dt[Foo()] == 1
-    @test dt[Bar()] == 2
-    @test dt[FooBar()] == dt.default
+    @test_throws ErrorException dt = DispatchedSet(((Foo(), 1), (Bar(), 2), (Foo(), 3)))
+    @test_throws ErrorException dt = DispatchedSet(((Foo(), 1), (Bar(), 2), (Foo(), 3)), 0)
 end
 
 @testset "DispatchedTuples - nested" begin
