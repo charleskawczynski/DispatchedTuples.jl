@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Performance · DispatchedTuples.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">DispatchedTuples.jl</span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li class="is-active"><a class="tocitem" href>Performance</a><ul class="internal"><li><a class="tocitem" href="#DispatchedTuple"><span>DispatchedTuple</span></a></li><li><a class="tocitem" href="#DispatchedSet"><span>DispatchedSet</span></a></li></ul></li><li><a class="tocitem" href="../api/">API</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Performance</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Performance</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/charleskawczynski/DispatchedTuples.jl/blob/master/docs/src/performance.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Performance"><a class="docs-heading-anchor" href="#Performance">Performance</a><a id="Performance-1"></a><a class="docs-heading-anchor-permalink" href="#Performance" title="Permalink"></a></h1><p>The performance of <code>DispatchedTuple</code>s should scale similar to the performance of ordinary tuples (good with small tuples, but expensive with larger ones).</p><pre><code class="language-julia">using DispatchedTuples
+using InteractiveUtils
+
+struct Foo end;
+struct Bar end;
+struct Baz end;
+
+tup = (
+   Pair(Foo(), 1),
+   Pair(Bar(), 3),
+   Pair(Foo(), 2),
+)
+
+tupset = (
+   Pair(Foo(), 1),
+   Pair(Bar(), 3),
+   Pair(Baz(), 2),
+)
+dtup = DispatchedTuple(tup);
+dset = DispatchedSet(tupset);
+nothing</code></pre><p>Using <code>dispatch</code> on a <code>DispatchedTuple</code> is equivalent to hard-coding the intended indexes ahead of time, which means that the LLVM code is concise:</p><h2 id="DispatchedTuple"><a class="docs-heading-anchor" href="#DispatchedTuple">DispatchedTuple</a><a id="DispatchedTuple-1"></a><a class="docs-heading-anchor-permalink" href="#DispatchedTuple" title="Permalink"></a></h2><pre><code class="language-julia">get_foo_magic(dtup) = (dtup.tup[1][2], dtup.tup[3][2])
+@code_typed get_foo_magic(dtup)</code></pre><pre class="documenter-example-output">CodeInfo(
+1 ─ %1 = Base.getfield(dtup, :tup)::Tuple{Tuple{Main.ex-perf.Foo,Int64},Tuple{Main.ex-perf.Bar,Int64},Tuple{Main.ex-perf.Foo,Int64}}
+│   %2 = Base.getfield(%1, 1, true)::Tuple{Main.ex-perf.Foo,Int64}
+│   %3 = Base.getfield(%2, 2, true)::Int64
+│   %4 = Base.getfield(dtup, :tup)::Tuple{Tuple{Main.ex-perf.Foo,Int64},Tuple{Main.ex-perf.Bar,Int64},Tuple{Main.ex-perf.Foo,Int64}}
+│   %5 = Base.getfield(%4, 3, true)::Tuple{Main.ex-perf.Foo,Int64}
+│   %6 = Base.getfield(%5, 2, true)::Int64
+│   %7 = Core.tuple(%3, %6)::Tuple{Int64,Int64}
+└──      return %7
+) =&gt; Tuple{Int64,Int64}</pre><pre><code class="language-julia">@code_typed dispatch(dtup, Foo())</code></pre><pre class="documenter-example-output">CodeInfo(
+1 ─ %1 = Base.getfield(dt, :tup)::Tuple{Tuple{Main.ex-perf.Foo,Int64},Tuple{Main.ex-perf.Bar,Int64},Tuple{Main.ex-perf.Foo,Int64}}
+│   %2 = Base.getfield(%1, 1, true)::Tuple{Main.ex-perf.Foo,Int64}
+│   %3 = Base.getfield(%2, 2, true)::Int64
+│   %4 = Base.getfield(dt, :tup)::Tuple{Tuple{Main.ex-perf.Foo,Int64},Tuple{Main.ex-perf.Bar,Int64},Tuple{Main.ex-perf.Foo,Int64}}
+│   %5 = Base.getfield(%4, 3, true)::Tuple{Main.ex-perf.Foo,Int64}
+│   %6 = Base.getfield(%5, 2, true)::Int64
+│   %7 = DispatchedTuples.tuple(%3, %6)::Tuple{Int64,Int64}
+└──      return %7
+) =&gt; Tuple{Int64,Int64}</pre><pre><code class="language-julia">@code_native get_foo_magic(dtup)</code></pre><pre class="documenter-example-output">	.text
+; ┌ @ none:1 within `get_foo_magic&#39;
+	movq	%rdi, %rax
+	movq	(%rsi), %rcx
+	movq	16(%rsi), %rdx
+	movq	%rcx, (%rdi)
+	movq	%rdx, 8(%rdi)
+	retq
+	nopw	%cs:(%rax,%rax)
+	nopl	(%rax)
+; └</pre><pre><code class="language-julia">@code_native dispatch(dtup, Foo())</code></pre><pre class="documenter-example-output">	.text
+; ┌ @ DispatchedTuples.jl:110 within `dispatch&#39;
+	movq	%rdi, %rax
+; │┌ @ DispatchedTuples.jl:24 within `macro expansion&#39;
+	movq	(%rsi), %rcx
+	movq	16(%rsi), %rdx
+	movq	%rcx, (%rdi)
+	movq	%rdx, 8(%rdi)
+	retq
+	nopw	%cs:(%rax,%rax)
+	nopl	(%rax)
+; └└</pre><h2 id="DispatchedSet"><a class="docs-heading-anchor" href="#DispatchedSet">DispatchedSet</a><a id="DispatchedSet-1"></a><a class="docs-heading-anchor-permalink" href="#DispatchedSet" title="Permalink"></a></h2><pre><code class="language-julia">get_foo_magic(dset) = dset.tup[1][2]
+@code_typed get_foo_magic(dset)</code></pre><pre class="documenter-example-output">CodeInfo(
+1 ─ %1 = Base.getfield(dset, :tup)::Tuple{Tuple{Main.ex-perf.Foo,Int64},Tuple{Main.ex-perf.Bar,Int64},Tuple{Main.ex-perf.Baz,Int64}}
+│   %2 = Base.getfield(%1, 1, true)::Tuple{Main.ex-perf.Foo,Int64}
+│   %3 = Base.getfield(%2, 2, true)::Int64
+└──      return %3
+) =&gt; Int64</pre><pre><code class="language-julia">@code_typed dispatch(dset, Foo())</code></pre><pre class="documenter-example-output">CodeInfo(
+1 ─ %1 = Base.getfield(dt, :tup)::Tuple{Tuple{Main.ex-perf.Foo,Int64},Tuple{Main.ex-perf.Bar,Int64},Tuple{Main.ex-perf.Baz,Int64}}
+│   %2 = Base.getfield(%1, 1, true)::Tuple{Main.ex-perf.Foo,Int64}
+│   %3 = Base.getfield(%2, 2, true)::Int64
+└──      return %3
+) =&gt; Int64</pre><pre><code class="language-julia">@code_native get_foo_magic(dset)</code></pre><pre class="documenter-example-output">	.text
+; ┌ @ none:1 within `get_foo_magic&#39;
+	movq	(%rdi), %rax
+	retq
+	nopw	%cs:(%rax,%rax)
+	nop
+; └</pre><pre><code class="language-julia">@code_native dispatch(dset, Foo())</code></pre><pre class="documenter-example-output">	.text
+; ┌ @ DispatchedTuples.jl:153 within `dispatch&#39;
+; │┌ @ DispatchedTuples.jl within `macro expansion&#39;
+	movq	(%rdi), %rax
+	retq
+	nopw	%cs:(%rax,%rax)
+	nop
+; └└</pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><a class="docs-footer-nextpage" href="../api/">API »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 12 March 2021 21:59">Friday 12 March 2021</span>. Using Julia version 1.5.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
