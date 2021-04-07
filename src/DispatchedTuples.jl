@@ -209,7 +209,7 @@ show_default(io::IO, dt::DispatchedTuple, ::NoDefaults) = println(io, "  default
 show_default(io::IO, dt::DispatchedSet, ::NoDefaults) = println(io, "  default => error")
 
 function Base.show(io::IO, dt::AbstractDispatchedTuple)
-    show(io, typeof(dt))
+    print(io, "$(nameof(typeof(dt)))")
     print(io, " with $(length(dt)) entries:")
     println(io)
     foreach(dt) do tup
