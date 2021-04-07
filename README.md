@@ -67,11 +67,11 @@ julia> struct Bar end;
 julia> struct Baz end;
 
 julia> dtup = DispatchedTuple((
-         Pair(Foo(), 1),
-         Pair(Foo(), 2),
-         Pair(Bar(), 3),
-       ))
-DispatchedTuple{Tuple{Tuple{Foo,Int64},Tuple{Foo,Int64},Tuple{Bar,Int64}},DispatchedTuples.NoDefaults} with 3 entries:
+                Pair(Foo(), 1),
+                Pair(Foo(), 2),
+                Pair(Bar(), 3),
+              ))
+DispatchedTuple with 3 entries:
   Foo() => 1
   Foo() => 2
   Bar() => 3
