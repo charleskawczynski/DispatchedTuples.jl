@@ -16,3 +16,4 @@ pretty_table(
     header_crayon = crayon"yellow bold",
     crop = :none,
 )
+
