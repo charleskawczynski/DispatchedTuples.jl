@@ -29,6 +29,11 @@ struct FooBar end
     @test dt[Foo()] == (1,)
     @test dt[Bar()] == (2,)
     @test dt[FooBar()] == (dt.default,)
+
+    dt = DispatchedTuple(Pair(Foo(), 1), Pair(Bar(), 2); default = 0)
+    @test dt[Foo] == (1,)
+    @test dt[Bar] == (2,)
+    @test dt[FooBar] == (dt.default,)
 end
 
 @testset "DispatchedTuples - base behavior - show" begin
@@ -136,6 +141,11 @@ end
     @test dt[Foo()] == 1
     @test dt[Bar()] == 2
     @test dt[FooBar()] == dt.default
+
+    dt = DispatchedSet(Pair(Foo(), 1), Pair(Bar(), 2); default = 0)
+    @test dt[Foo] == 1
+    @test dt[Bar] == 2
+    @test dt[FooBar] == dt.default
 end
 
 @testset "DispatchedSet - base behavior - Pair interface" begin
