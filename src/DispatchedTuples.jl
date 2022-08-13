@@ -124,6 +124,19 @@ end
     expr
 end
 
+@generated function dispatch(dt::DispatchedTuple{TT, NoDefaults}, ::Type{T}) where {TT, T}
+    expr, found_match = match_expr(dt, TT, T)
+    expr
+end
+
+@generated function dispatch(dt::DispatchedTuple{TT,D}, ::Type{T}) where {TT, D, T}
+    expr, found_match = match_expr(dt, TT, T)
+    if !found_match
+        push!(expr.args[2].args, :(dt.default))
+    end
+    expr
+end
+
 #####
 ##### DispatchedSet
 #####
@@ -181,6 +194,24 @@ on the instance of the input type `type_instance`.
 end
 
 @generated function dispatch(dt::DispatchedSet{TT,D}, ::T) where {TT, D, T}
+    expr, match_count = match_expr_val(dt, TT, T)
+    if match_count == 0
+        return :(dt.default)
+    else
+        return expr
+    end
+end
+
+@generated function dispatch(dt::DispatchedSet{TT, NoDefaults}, ::Type{T}) where {TT, T}
+    expr, match_count = match_expr_val(dt, TT, T)
+    if match_count == 0
+        return :(throw(error("No method dispatch defined for type $T")))
+    else
+        return expr
+    end
+end
+
+@generated function dispatch(dt::DispatchedSet{TT,D}, ::Type{T}) where {TT, D, T}
     expr, match_count = match_expr_val(dt, TT, T)
     if match_count == 0
         return :(dt.default)
